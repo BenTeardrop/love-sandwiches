@@ -5,7 +5,7 @@ SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive.file",
     "https://www.googleapis.com/auth/drive"
-    ]
+]
 CREDS = Credentials.from_service_account_file('creds.json')
 SCOPE_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPE_CREDS)
@@ -14,7 +14,10 @@ SHEET = GSPREAD_CLIENT.open('love_sandwiches')
 
 def get_sales_data():
     """
-    Get sales figures input from the user
+    Get sales figures input from the user.
+    Run a while loop to collect a valid string of data from the user via the 
+    terminal,which must be a string of 6 numbers separated bys commas. 
+    The loop will repeately request data until it is valid.
     """
     while True:
         print('Please enter sales data from the last market.')
@@ -30,6 +33,7 @@ def get_sales_data():
             break
     return sales_data
 
+
 def validate_data(values):
     """
     Inside the try, converts all string values into integers.
@@ -43,9 +47,21 @@ def validate_data(values):
                 f'Exactly 6 values required, you provided {len(values)}'
             )
     except ValueError as e:
-        print(f"invalid data: {e}, please try again.\n") 
+        print(f"invalid data: {e}, please try again.\n")
         return False
 
     return True
-data = get_sales_data()
 
+def update_sales_worksheet(data):
+    """
+    Update sales worksheet, add new row with the list data
+    """
+    print('updating sales worksheet...\n')
+    sales_worksheet = SHEET.worksheet("sales")
+    sales_worksheet.append_row(data)
+    print('sales worksheet updated succesfully. \n')
+
+
+data = get_sales_data()
+sales_data = [int(num) for num in data]
+update_sales_worksheet(sales_data)
